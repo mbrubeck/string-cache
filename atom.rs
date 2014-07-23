@@ -279,6 +279,10 @@ impl StrAllocating for Atom {
 }
 
 impl PartialOrd for Atom {
+    fn partial_cmp(&self, other: &Atom) -> Option<Ordering> {
+        self.data.partial_cmp(&other.data)
+    }
+
     fn lt(&self, other: &Atom) -> bool {
         if self.data == other.data {
             return false;
