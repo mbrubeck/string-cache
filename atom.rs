@@ -129,7 +129,7 @@ impl StringCache {
             assert!(current != ptr::mut_null());
 
             unsafe {
-                ptr::read(ptr as *StringCacheEntry);
+                ptr::read(ptr as *const StringCacheEntry);
                 heap::deallocate(ptr as *mut u8,
                     mem::size_of::<StringCacheEntry>(), ENTRY_ALIGNMENT);
             }
@@ -252,11 +252,11 @@ impl fmt::Show for Atom {
 impl Str for Atom {
     fn as_slice<'t>(&'t self) -> &'t str {
         let (atom_type, string_len) = self.get_type_and_inline_len();
-        let ptr = self as *Atom as *u8;
+        let ptr = self as *const Atom as *const u8;
         match atom_type {
             Inline => {
                 unsafe {
-                    let data = ptr.offset(1) as *[u8, ..7];
+                    let data = ptr.offset(1) as *const [u8, ..7];
                     str::raw::from_utf8((*data).slice_to(string_len))
                 }
             },
@@ -265,7 +265,7 @@ impl Str for Atom {
                 key.as_slice()
             },
             Dynamic => {
-                let hash_value = unsafe { &*(self.data as *StringCacheEntry) };
+                let hash_value = unsafe { &*(self.data as *const StringCacheEntry) };
                 hash_value.string.as_slice()
             }
         }
